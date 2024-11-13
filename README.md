@@ -19,4 +19,4 @@
 |1|[Название проекта]()| YouTube| Описание| `стек` |
 |2|[Название]()|Интернет-магазин| Что сделал | `pandas` `numpy` `seaborn` `scipy` `matplotib`|
 |3|[Название]()| Мобильное приложение|Что сделал |`pandas` `numpy` `seaborn` `scipy` `matplotib` `plotly`|
-|4| []() | Маркетинг | Составление профилей пользователей, изучение каналов привлечения, когортный анализ. Анализ LTV, ROI, CR и CRR |`pandas`  `numpy` `seaborn` `matplotlib`|
+|4| [Анализ бизнес показателей](https://github.com/SiriusSergio/portfolio/tree/main/Marketing%20Analysis) | Маркетинг | Составление профилей пользователей, изучение каналов привлечения, когортный анализ. Анализ LTV, ROI, CR и CRR |`pandas`  `numpy` `seaborn` `matplotlib`|
