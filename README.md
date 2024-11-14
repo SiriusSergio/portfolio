@@ -10,3 +10,8 @@
 |2|[Название]()| Сфера | Описание | `стек`|
 |3|[Анализ рынка заведений общественного питания Москвы](https://github.com/SiriusSergio/portfolio/tree/main/Catering%20Moscow)| Общественное питание | Анализ категорий заведений, посадочных мест, изучение рейтингов и лучших сетей Москвы. Оценка цен в разных районах. |`pandas` `numpy` `seaborn` `matplotib` `folium`|
 |4| [Анализ бизнес показателей](https://github.com/SiriusSergio/portfolio/tree/main/Marketing%20Analysis) | Маркетинг | Составление профилей пользователей, изучение каналов привлечения, когортный анализ. Анализ LTV, ROI, CR и CRR |`pandas`  `numpy` `seaborn` `matplotlib` `datetime`|
+
+
+## Контакты
+- [Telegram](https://t.me/sergeidavuduik)
+- davydyuksergey@yandex.ru
