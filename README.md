@@ -6,7 +6,7 @@
 
 |#|Название проекта|Сфера|Описание проекта|Стек|
 |-----|-----|-----|-----|-----|
-|1|[Название проекта]()| YouTube| Описание| `стек` |
-|2|[Название]()|Интернет-магазин| Что сделал | `pandas` `numpy` `seaborn` `scipy` `matplotib`|
-|3|[Название]()| Мобильное приложение|Что сделал |`pandas` `numpy` `seaborn` `scipy` `matplotib` `plotly`|
-|4| [Анализ бизнес показателей](https://github.com/SiriusSergio/portfolio/tree/main/Marketing%20Analysis) | Маркетинг | Составление профилей пользователей, изучение каналов привлечения, когортный анализ. Анализ LTV, ROI, CR и CRR |`pandas`  `numpy` `seaborn` `matplotlib`|
+|1|[Название]()| Сфера | Описание| `стек` |
+|2|[Название]()| Сфера | Описание | `стек`|
+|3|[Анализ рынка заведений общественного питания Москвы](https://github.com/SiriusSergio/portfolio/tree/main/Catering%20Moscow)| Общественное питание | Анализ категорий заведений, посадочных мест, изучение рейтингов и лучших сетей Москвы. Оценка цен в разных районах. |`pandas` `numpy` `seaborn` `matplotib` `folium`|
+|4| [Анализ бизнес показателей](https://github.com/SiriusSergio/portfolio/tree/main/Marketing%20Analysis) | Маркетинг | Составление профилей пользователей, изучение каналов привлечения, когортный анализ. Анализ LTV, ROI, CR и CRR |`pandas`  `numpy` `seaborn` `matplotlib` `datetime`|
