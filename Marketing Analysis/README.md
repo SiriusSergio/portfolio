@@ -1,5 +1,8 @@
 # Анализ бизнес-показателей 
-[Jupyter notebook](https://github.com/SiriusSergio/portfolio/blob/eb185368273815c6cb9d04894634479a59d25ee6/Marketing%20Analysis/Marketing%20Analysis.ipynb)
+Код проекта:
+
+
+<kbd> <br> [Jupyter notebook on GitHub](https://github.com/SiriusSergio/portfolio/blob/eb185368273815c6cb9d04894634479a59d25ee6/Marketing%20Analysis/Marketing%20Analysis.ipynb) <br> </kbd>  <kbd> <br> [NBviewer](https://nbviewer.org/github/SiriusSergio/portfolio/blob/eb185368273815c6cb9d04894634479a59d25ee6/Marketing%20Analysis/Marketing%20Analysis.ipynb#plan) <br> </kbd>
 # Описание проекта
 
 **Проблема и актуальность**
