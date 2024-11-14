@@ -1,6 +1,5 @@
 # Анализ бизнес-показателей 
-[Jupyter notebook](https://github.com/SiriusSergio/portfolio/blob/f4660a2c8bcfedcf9e460e24f8cf8d9850523d28/Marketing%20Analysis/Marketing%20Analysis.ipynb)
-
+[Jupyter notebook](https://github.com/SiriusSergio/portfolio/blob/eb185368273815c6cb9d04894634479a59d25ee6/Marketing%20Analysis/Marketing%20Analysis.ipynb)
 # Описание проекта
 
 **Проблема и актуальность**
