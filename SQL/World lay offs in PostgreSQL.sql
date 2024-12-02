@@ -1,11 +1,11 @@
--- Data Cleaning 
- -- Original Dataset
+-- Очистка данных
+-- Исходный датасет
 
 SELECT *
 FROM public.layoffs;
 
 
--- Creating a copy of an original dataset
+-- Создание копии исходного датасета
 
 CREATE TABLE layoffs_staging (LIKE layoffs INCLUDING ALL);
 
@@ -18,63 +18,68 @@ INSERT INTO layoffs_staging
 SELECT *
 FROM layoffs_staging;
 
--- Changing data types 
+-- Изменение типов данных
 
+-- Просмотр и изменение формата даты
 SELECT "date",
 CAST("date" AS DATE)
 FROM layoffs_staging;
 
- -- Let's run a query to find strings that 
- -- do not follow the MM/DD/YYYYYY format:
+ -- Запустим запрос для поиска строк, которые не соответствуют формату MM/DD/YYYY
 SELECT "date"
 FROM layoffs_staging
 WHERE "date" !~ '^\d{1,2}/\d{1,2}/\d{4}$';
 
- -- And delete them from table 
+-- Удалим строки с неверным форматом даты
 DELETE FROM layoffs_staging
 WHERE "date" !~ '^\d{1,2}/\d{1,2}/\d{4}$';
 
- -- Now change data type from varchar to date
+-- Теперь изменим тип данных на DATE
 ALTER TABLE layoffs_staging
 ALTER COLUMN "date" TYPE DATE
 USING TO_DATE("date", 'MM/DD/YYYY');
 
--- Updading NULL values 
+-- Обновление значений NULL
+
+-- Обновляем поле industry, чтобы заменить пустые строки и строку со значением 'NULL' на NULL
 UPDATE layoffs_staging
 SET industry = NULL 
 WHERE TRIM(industry) = ''
 OR LOWER(industry) = 'null';
 
--- Let's change blank values to NULL values
+-- Заменяем пустые значения на NULL в поле total_laid_off
 UPDATE layoffs_staging
 SET total_laid_off = NULL 
 WHERE total_laid_off LIKE 'NULL';
 
+-- То же для поля percentage_laid_off
 UPDATE layoffs_staging
 SET percentage_laid_off = NULL 
 WHERE percentage_laid_off LIKE 'NULL';
 
--- Let's change data type to INTEGER OR FLOAT
-
+-- Изменяем тип данных для total_laid_off на INTEGER
 ALTER TABLE layoffs_staging
 ALTER COLUMN total_laid_off TYPE INTEGER
 USING total_laid_off::INTEGER;
 
+-- Изменяем тип данных для percentage_laid_off на INTEGER
 ALTER TABLE layoffs_staging
 ALTER COLUMN percentage_laid_off TYPE INTEGER
 USING percentage_laid_off::INTEGER;
 
+-- Заменяем 'NULL' на NULL для поля funds_raised_millions
 UPDATE layoffs_staging
 SET funds_raised_millions = NULL 
 WHERE funds_raised_millions = 'NULL';
 
+-- Изменяем тип данных для поля funds_raised_millions на FLOAT
 ALTER TABLE layoffs_staging
 ALTER COLUMN funds_raised_millions TYPE FLOAT
 USING funds_raised_millions::FLOAT;
 
 
--- Deleting duplicates
- -- Creating CTE which include all rows and number of those rows. If number is greater than 1 then we can call it a duplicate
+-- Удаление дубликатов
+-- Создаем CTE (Common Table Expression), чтобы получить все строки и их порядковый номер
  WITH duplicates_cte AS
   (SELECT *,
           ROW_NUMBER () OVER (PARTITION BY company, "location", industry, total_laid_off, percentage_laid_off, "date", stage, country, funds_raised_millions) AS row_num
@@ -83,8 +88,7 @@ SELECT *
 FROM duplicates_cte
 WHERE row_num > 1;
 
--- Deleting duplicates using subquery:
-
+-- Удаление дубликатов с использованием подзапроса
 DELETE
 FROM layoffs_staging
 WHERE ctid IN
@@ -95,70 +99,64 @@ WHERE ctid IN
         FROM layoffs_staging) ls
      WHERE ls.row_num > 1);
 
--- Standardizing data
- 
-    -- First let's look at 'company' field
+-- Стандартизация данных
+
+-- Просмотр уникальных значений в поле 'company' для поиска ошибок
 SELECT DISTINCT company
 FROM layoffs_staging;
 
--- Looking for typos in company names - white spaces in the beggining of the name
-
+-- Поиск опечаток в названиях компаний (например, пробелы в начале названия)
 SELECT company,
        TRIM(company)
 FROM layoffs_staging
 WHERE company LIKE ' %' 
 
- -- Using TRIP function to update company field and get rid of spaces in the beggining of the name
-
+-- Используем функцию TRIM для обновления поля 'company' и удаления пробелов в начале
 UPDATE layoffs_staging
 SET company = TRIM(company);
 
- -- Looking into industry field 
+-- Просмотр уникальных значений в поле 'industry'
 SELECT DISTINCT industry
 FROM layoffs_staging
 ORDER BY 1;
 
- -- We have found industry name 'Crypto' and 'Cryptocurrency' which is the same name, 
- -- let's filter on 'Crypto%'
- -- and see how many duplicates are there
+ -- Обнаружены два значения 'Crypto' и 'Cryptocurrency', которые означают одно и то же
+-- Заменим все значения, начинающиеся на 'Crypto', на 'Crypto'
 SELECT *
 FROM layoffs_staging
 WHERE industry LIKE 'Crypto%';
 
- -- Looks like "Crypto" and "Cryptocurrency" is the same thing, so let's just update that
 UPDATE	layoffs_staging
 SET industry = 'Crypto'
 WHERE industry LIKE 'Crypto%';
 
- -- Looks like there is no issue with location filed
+ -- Проверка поля 'location' — нет проблем, оставляем без изменений
 SELECT "location"
 FROM layoffs_staging;
 
- -- Let's see if there any promlebs with country field
+-- Проверка поля 'country' на наличие лишних символов, например, точек в конце названия
 SELECT DISTINCT country
 FROM layoffs_staging;
 
- -- Looks like there is a dot at the end of 'United States' 
- -- which we want to get rid of
+ -- Удалим точку в конце названия 'United States'
 SELECT DISTINCT country, TRIM(TRAILING '.' FROM country)
 FROM layoffs_staging;
 
- -- Updating table 
+-- Обновление поля 'country', чтобы удалить точку в конце
 UPDATE layoffs_staging
 SET country = TRIM(TRAILING '.' FROM country)
 WHERE country LIKE 'United States%'
 
 
--- Populating data 
- -- Let's try and find NULL or blank values and try to populate them using data that we are working with
-
+-- Заполнение пропущенных данных
+-- Ищем строки с NULL или пустыми значениями в поле 'industry'
 SELECT *
 FROM layoffs_staging
 WHERE  industry IS NULL;
 
- -- We've got several companies with blank or NULL values in industry field
- -- Let's try to filter on those company names and see if there are data about industry 
-	 -- Companies to check: 
+ -- У нас есть несколько компаний с пустыми или NULL-значениями в поле industry
+ -- Давайте попробуем отфильтровать названия этих компаний и посмотреть, есть ли данные об отрасли 
+	 -- Компании для проверки: 
 	 -- Juul
 	 -- Carvana
 	 -- Airbnb
@@ -166,24 +164,21 @@ WHERE  industry IS NULL;
 
 SELECT *
 FROM layoffs_staging
-WHERE company = 'Airbnb'; -- Change Industry : Travel
+WHERE company = 'Airbnb'; -- Изменим на: Travel
 
 SELECT *
 FROM layoffs_staging
-WHERE company = 'Juul'; -- Change Industry : Consumer
+WHERE company = 'Juul'; -- Изменим на: Consumer
 
 SELECT *
 FROM layoffs_staging
-WHERE company = 'Carvana'; -- Change Industry : Transportation
+WHERE company = 'Carvana'; -- Изменим на: Transportation
 
 SELECT *
 FROM layoffs_staging
-WHERE company LIKE 'Bally%'; -- Cannot CHANGE Industry because there IS NO DATA TO populate FROM
+WHERE company LIKE 'Bally%'; -- Невозможно изменить, так как нет данных для заполнения
 
- -- Airbnb has another row that sais that industry they are working in is 'Travel'
- -- so let's try to populate the data using subquery
-
- -- Populating the data
+ -- Используем подзапрос для заполнения пустых значений в поле 'industry' на основе существующих данных
 UPDATE layoffs_staging
 SET industry = subquery.industry
 FROM ( SELECT *
@@ -194,14 +189,13 @@ WHERE layoffs_staging.company = subquery.company
   AND layoffs_staging.industry IS NULL;
   
  
- -- And now let's filter on fields: 'total_laid_off' and 'percentage_laid_off'
- -- to try to find row where both of those fields and NULL
+ -- Поиск строк, где оба поля 'total_laid_off' и 'percentage_laid_off' содержат NULL	
 SELECT *
 FROM layoffs_staging
 WHERE total_laid_off IS NULL
 AND percentage_laid_off IS NULL;
- -- In this project we dont need that data, so we will just delete those rows 
-
+ 
+-- Эти данные не нужны, поэтому удаляем такие строки
 DELETE
 FROM layoffs_staging
 WHERE total_laid_off IS NULL
@@ -209,47 +203,40 @@ AND percentage_laid_off IS NULL;
 
 
 
--- And now let's do some Exploratory Data Analysis using PostgreSQL
+-- А теперь давайте проведем разведывательный анализ данных с помощью PostgreSQL.
 
- -- I want to take a look at:
-	-- Range of dates this data provides
-	-- Sum of total laid offs for each company, industry, counry
-	-- Rolling total of laid offs per month, per year
-	-- Top 5 companies with most total laid offs per year, per month
+ -- Я хочу взглянуть на:
+	-- Диапазон дат, в который попадают эти данные
+	-- Сумму общего числа уволенных по каждой компании, отрасли, стране
+	-- Сумму с накоплением увольнений за месяц, за год
+	-- Топ-5 компаний с наибольшим количеством увольнений за год
 
--- Range of dates this data provides
-
+-- Определим диапазон дат в данных
 SELECT MAX("date"), MIN("date")
 FROM layoffs_staging;
 
--- Sum of total laid offs for each company, industry, counry
-
--- Let's find total sum for each company
-
+-- Сумма уволенных по компаниям
 SELECT company, SUM(total_laid_off) AS sum_laid_off
 FROM layoffs_staging
 GROUP BY company
-HAVING  SUM(total_laid_off) IS NOT NULL -- filtering ONLY NOT NULL VALUES 
+HAVING  SUM(total_laid_off) IS NOT NULL -- фильтруем только те значения, которые не равны NULL
 ORDER BY 2 DESC;
 
--- And for each industry:
-
+-- Сумма уволенных по отраслям
 SELECT industry, SUM(total_laid_off) AS sum_laid_off
 FROM layoffs_staging
 GROUP BY industry
-HAVING  SUM(total_laid_off) IS NOT NULL -- filtering ONLY NOT NULL VALUES 
+HAVING  SUM(total_laid_off) IS NOT NULL -- фильтруем только те значения, которые не равны NULL
 ORDER BY 2 DESC;
 
--- And for each country:
-
+-- Сумма уволенных по странам
 SELECT country, SUM(total_laid_off) AS sum_laid_off
 FROM layoffs_staging
 GROUP BY country
-HAVING  SUM(total_laid_off) IS NOT NULL -- filtering ONLY NOT NULL VALUES 
+HAVING  SUM(total_laid_off) IS NOT NULL -- фильтруем только те значения, которые не равны NULL
 ORDER BY 2 DESC;
 
--- Rolling total of laid offs per year and per month
-
+-- Скользящий итог по уволенным в разрезе месяцев
 WITH company_laid_off(date_laid_off, sum_laid_off) AS (
 SELECT 
 date_trunc('month', "date")::date,
@@ -264,8 +251,7 @@ SELECT date_laid_off,
 SUM(sum_laid_off) OVER(ORDER BY date_laid_off) AS rolling_total
 FROM company_laid_off;
 
--- Top 5 companies with most total laid offs per year
-
+-- Топ 5 компаний с наибольшим количеством уволенных по годам
 WITH Company_laid_off(company, date_laid_off, sum_laid_off) AS (
 SELECT company,
 	EXTRACT(YEAR FROM "date"),
